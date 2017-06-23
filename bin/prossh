@@ -1,0 +1,17 @@
+#!/bin/bash
+
+HOST="${1}"
+PROFILE_FILE=".zshrc"   # Change this to the name of your profile file
+BACKUP_FILE="${PROFILE_FILE}.bak-$(date +%F--%H-%M-%S)"
+
+# Take backup of file if it already exists
+ssh "${HOST}" "ls ~/${PROFILE_FILE} 2>/dev/null && mv ~/${PROFILE_FILE} ~/${BACKUP_FILE}"
+
+# Copy over local file to remote server
+scp ~/${PROFILE_FILE} "${HOST}:~/${PROFILE_FILE}"
+
+# If the backup was created and is identical to the one uploaded, then delete it
+ssh "${HOST}" "ls ~/${BACKUP_FILE} 2>/dev/null && diff ~/${PROFILE_FILE} ~/${BACKUP_FILE} && rm ~/${BACKUP_FILE}"
+
+# Drop user in a regular SSH session
+ssh "${HOST}"
